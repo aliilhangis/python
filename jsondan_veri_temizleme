@@ -1,0 +1,30 @@
+import json
+import os
+import codecs
+
+# JSON dosyalarının bulunduğu klasör
+directory = "dosyayolu"
+
+# Silmek istediğiniz anahtarlar
+keys_to_remove = ["silinecek alanlar"]
+
+def remove_keys_from_dict(data, keys):
+    if isinstance(data, dict):
+        return {k: remove_keys_from_dict(v, keys) for k, v in data.items() if k not in keys}
+    elif isinstance(data, list):
+        return [remove_keys_from_dict(i, keys) for i in data]
+    else:
+        return data
+
+for filename in os.listdir(directory):
+    if filename.endswith(".json"):
+        filepath = os.path.join(directory, filename)
+        with codecs.open(filepath, 'r', 'utf-8') as file:
+            data = json.load(file)
+        
+        cleaned_data = remove_keys_from_dict(data, keys_to_remove)
+        
+        with codecs.open(filepath, 'w', 'utf-8') as file:
+            json.dump(cleaned_data, file, ensure_ascii=False, indent=4)
+
+print("Gereksiz alanlar basariyla silindi!")
